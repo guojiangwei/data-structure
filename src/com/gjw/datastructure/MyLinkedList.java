@@ -67,11 +67,11 @@ public class MyLinkedList<T> implements Iterable<T> {
 
 	/// return a node at the specief position
 	private Node<T> getNode(int index, int lower, int upper) {
-		if (index < 0 || index >= this.size)
+		if (index < 0 || index > this.size)
 			throw new IndexOutOfBoundsException();
 		if (index < (this.size >> 1)) {
 			Node<T> x = this.head;
-			for (int i = 0; i < index; i++) {
+			for (int i = 0; i <= index; i++) {
 				x = x.next;
 			}
 			return x;
