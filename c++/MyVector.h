@@ -9,6 +9,7 @@ template <typename T> class MyVector{
     void shrink();  //收缩vector
     
     int max(int low,int high); //返回最大值位置
+    T maxSorted(int low,int high); //返回最大值位置
     void bubbleSort(int low,int high);//冒泡排序
     void selectionSort(int low,int high);//选择排序
     void merge(int low,int mid,int high);//归并
@@ -61,6 +62,9 @@ template <typename T> class MyVector{
     int max(){
         return max(0,_size);
 
+    }
+    T maxSorted(){
+        return maxSorted(0,_size);
     }
     //判断是否无序
     int disordered()const;
@@ -133,7 +137,7 @@ int MyVector<T>::insert(int r,T const& e){
 }
 //
 template <typename T> void MyVector<T>::shrink(){
-  if(_size/_capacity/2<0.6){
+  if(_size/(_capacity/2)<0.6){
       T * oldElem=_elem;
       _capacity=_capacity>>1;
       _elem=new T[_capacity];
@@ -159,15 +163,23 @@ void MyVector<T>::expand(){
 }
 ///
 template <typename T> int MyVector<T>::max(int low,int high){
-    T * temp=_elem[low++];
+    T temp=_elem[low++];
     int index=0;
     while(low<high){
-        if(_elem[low++]>temp) {
+        if(_elem[low]>temp) {
             temp=_elem[low];
             index=low;
     }
+    // printf("\n----max=%d--temp=%d--low=%d---index=%d",_elem[low],temp,low,index);
+    low++;
     }
+
     return index;
+}
+
+///
+template <typename T> T MyVector<T>::maxSorted(int low,int high){
+    return _elem[high-1];
 }
 ///
 template <typename T> int MyVector<T>::disordered()const{
@@ -202,10 +214,14 @@ template <typename T> MyVector<T> & MyVector<T>::operator= (MyVector<T> const &v
 
 
 template <typename T> T MyVector<T>::remove(int r){
-    if (r>=_size or r<0) return NULL;
-    T e=_elem[r++];
+    T e;
+    if (r>=_size or r<0) return e;
+    e=_elem[r];
+    r++;
     while(r<_size){
-        _elem[r-1]=_elem[r++];
+        _elem[r-1]=_elem[r];
+        r++;
+       
     }
     _size--;
     shrink();
@@ -238,8 +254,8 @@ template <typename T> int MyVector<T>::deduplicate(){
     int oldSize=_size;
     int inx;
     for(int i=0;i<_size;){
-        inx=find(_elem[i++],i,_size);
-        if(inx>i)remove(inx);
+        inx=find(_elem[i],i+1,_size);
+        inx>=i+1?remove(inx):i++;
     }
     return oldSize-_size;
 }
@@ -316,16 +332,19 @@ template <typename T> void MyVector<T>::sort(int low,int high,int m){
 }
 //冒泡排序
 template <typename T> void MyVector<T>::bubbleSort(int low,int high){
+    // printf("test bubbleDSort");
     int lastSwap=0;
     bool sorted=true;
-    for(int i=low;i<high;i++){
-        for( int j=i+1;j<high;j++){
+    while(low<high){
+        sorted=true;
+        for( int j=low+1;j<high;j++){
             if(_elem[j-1]>_elem[j]){
-                swap(_elem+i,_elem+j);
+                swap(_elem+j-1,_elem+j);
                 lastSwap=j;
                 sorted=false;
                 }
         }
+        // printf("\n----elem=%d---",_elem[high-low-1]);
         if(sorted)break;
         high=lastSwap;
     }
@@ -341,26 +360,43 @@ template <typename T> void MyVector<T>::merge(int low,int mid,int high){
     int highLen=high-mid;T * highElem=_elem+mid;
     
     T* tempElem=new T[lowLen];
-    for(int i=0;i<lowLen;tempElem[i]=lowElem[i++]); ///copy low to temp array
-    for(int i=0,j=0,k=0;i<lowLen||j<highLen;){
-        
+    for(int i=0;i<lowLen;i++)tempElem[i]=lowElem[i]; ///copy low to temp array
+    
+    for(int i=0,j=0,k=0;(i<lowLen)||(j<highLen);){
         if(j<highLen && (!(i<lowLen)||highElem[j]<tempElem[i]) ){
-            lowElem[k++]=highElem[j++];
+            lowElem[k]=highElem[j];
+            k++;
+            j++;
         }
-        if(i<lowLen&&(!(j<highLen)||tempElem[i]>=highElem[j])){
-            lowElem[k++]=tempElem[i++];
+        if(i<lowLen&&(!(j<highLen)||tempElem[i]<=highElem[j])){
+            lowElem[k]=tempElem[i];
+            k++;
+            i++;
         }
     }
+    // printf("\n-tempElem=%d--low=%d--%d---mid=%d--%d---high=%d--%d--",tempElem[0],low,_elem[low],mid,_elem[mid],high,_elem[high-1]);
     delete [] tempElem;
 }
 //归并排序
 template <typename T> void MyVector<T>::mergeSort(int low,int high){
     if(high-low<2)return;
     int mid=(low+high)/2;
+    // printf("\n---test-----merge");
     mergeSort(low,mid);
     mergeSort(mid,high);
     merge(low,mid,high);
+    // printf("\n---test--merge--end--");
+
 }
-// template <typename T> int MyVector<T>::partition(int low,int high);//快速排序的分割点选择
-// template <typename T> void MyVector<T>::quickSort(int low,int high);//快速排序
-// template <typename T> void MyVector<T>::heapSort(int low,int high);//堆排序
+//快速排序的分割点选择
+template <typename T> int MyVector<T>::partition(int low,int high){
+
+}
+//快速排序
+template <typename T> void MyVector<T>::quickSort(int low,int high){
+
+}
+//堆排序
+template <typename T> void MyVector<T>::heapSort(int low,int high){
+
+}
