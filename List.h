@@ -39,6 +39,7 @@ private:
     int _size; //列表所含对象数量
     ListNodePosi(T) header;//头节点
     ListNodePosi(T) trailer;//尾节点
+    int SORTMETHOD;//0 bubble sort;1 selectionSort;2 merge sort;3 quicksort;4 heapsort;5 insertsort
 protected:
     void init();//初始化列表
     int clear();//清除所有节点
@@ -46,7 +47,7 @@ protected:
     void merge(ListNodePosi(T)&,int ,List<T>&,ListNodePosi(T),int);//归并
     void mergeSort(ListNodePosi(T)&,int); ///从指定位置开始进行归并排序
     void selectionSort(ListNodePosi(T),int);///从指定位置开始进行选择排序
-    void insertSort(ListNodePosi(T),int);///从指定位置开始进行插入排序
+    void insertionSort(ListNodePosi(T),int);///从指定位置开始进行插入排序
 public:
     List(){init()};//default
     List(List<T> const& list);//整体复制列表
@@ -77,7 +78,7 @@ public:
     ListNodePosi(T) search(T const& e)const{return search(e,_size,trailer);}
     //有序范围查找某个元素
     ListNodePosi(T) search(T const& e,int n,ListNodePosi(T) p)const;
-    //返回最大值
+    //返回p节点后的最大值节点
     ListNodePosi(T) selectMax(ListNodePosi(T) p,int n);
     //返回范围最大值
     ListNodePosi(T) selectMax(){return selectMax(header->next,_size);}
@@ -91,12 +92,44 @@ public:
     ListNodePosi(T) insertBefore(ListNodePosi(T) p, T const& e);
     //移除指定节点
     T remove(ListNodePosi(T) p);
+    //交换两个节点
+       void swapNode(ListNodePosi(T) p,ListNodePosi(T) q){
+           ///交换pq两个节点的位置，需要总共交换八次，分别交换各自后继节点的前驱节点；前驱节点的后继节点；各自的后继节点和前驱节点
+        ListNodePosi(T) temp;
+        temp=p->next->previous;
+        p->next->previous=q->next->previous;
+        q->next->previous=temp;
+
+        temp=p->previous->next;
+        p->previous->next=q->previous->next;
+        q->previous->next=temp;
+
+        temp=p->next;
+        p->next=q->next;
+        q->next=temp;
+
+        temp=p->previous;
+        p->previous=q->previous;
+        q->previous=temp;
+    }
+    ///将一个节点移动到另一个节点后面,需要改变六次指针
+    void moveNodeAfter(ListNodePosi(T) position,ListNodePosi(T) target){
+        ListNodePosi(T) temp=position->next;
+        target->previous->next=target->next;
+        target->next->previous=target->previous;
+
+        temp->previous=target;
+        target->next=temp;
+        position->next=target;
+        target->previous=position;
+        
+    }
     //合并两个list
     void merge(List<T>& list){merge(first(),_size,list,list.size());}
     //将指定元素后n个节点排序
-    void sort(ListNodePosi(T) p,int n);
+    void sort(ListNodePosi(T) p,int n,int method=5);
     //整个list排序
-    void sort(){sort(first(),_size);}
+    void sort(int method=5){sort(first(),_size,method);}
     //无序去除重复节点
     int deduplicate();
     //有序删除重复节点
@@ -117,7 +150,7 @@ template <typename T> void List<T>::init(){
     _size=0;//初始化规模为0
 }
 ///
-template <typename T> T& List<T>::operator[](int i){
+template <typename T> T& List<T>::operator[](int i)const{
     ListNodePosi(T) p=first();
     while(0<r--){
         p=p->next;
@@ -189,4 +222,103 @@ template <typename T> int List<T>::clear(){
         remove(header->next);
     }
     return oldSize;
+}
+///
+template <typename T> int List<T>::deduplicate(){
+    ListNodePosi(T) p= header->next;
+    int oldSize=_size;
+    int r=_size;
+    while(!p){
+        find(p->data,r--,trailer->previous)?remove(p):p=p->next;
+    }
+    return oldSize-_size;
+}
+///遍历list
+template <typename T>  void List<T>::traverse(void (*visit) (T&)){
+    for(ListNodePosi(T) p=header->next;p!=trailer;p=p->next) visit(p->data);
+}
+/// 遍历list
+template <typename T>  template <typename VST> void List<T>::traverse(VST & visit){
+    for(ListNodePosi(T) p=header->next;p!=trailer;p=p->next)visit(p->data);
+}
+///有序唯一化
+template <typename T> int List<T>::uniquify(){
+    int oldSize=_size;
+    ListNodePosi(T) p=header->next;
+    ListNodePosi(T) q;
+    while ((q=p->next)!=trailer)
+    {
+        p->data==q->data?remove(q):p=q;
+    }
+    return oldSize-_size;
+}
+///
+template <typename T> ListNodePosi(T) List<T>::search(T const& e,int n,ListNodePosi(T) p)const{
+    ListNodePosi(T)  q;
+    while ((q=p->previous)!=header&&0<n--)
+    {
+        if(q->data<=e)return q;
+        else
+        {
+            p=q
+        }
+    }
+    return q;
+}
+///sort 
+template <typename T> void List<T>::sort(ListNodePosi(T) p,int n,int method){
+    switch (method)
+    {
+    case 5:
+       insertionSort(p,n);
+        break;
+    
+    default:
+        break;
+    }
+}
+template <typename T> void List<T>::insertionSort(ListNodePosi(T) p,int n){
+    ListNodePosi(T) q,r;
+    for (int i = 0; i < n; i++)
+    {
+        insertAfter(search(p->data,i,p),p->data);
+        p=p->next;
+        remove(p->previous);//删除加入到有序序列中的节点
+
+    }
+    ////不用删除或者新加节点，通过变更节点previous和next指针来进行排序
+    // while ((q=p->next)!=trailer)
+    // {
+    //     while ((r=q->previous)!=header)
+    //     {
+    //         if(q->data>=r->data){
+    //             moveNodeAfter(r,q);
+    //             break;
+    //             }
+    //             q=r;
+    //     }
+    //     p=q;
+    // }
+
+}
+
+template <typename T> ListNodePosi(T) List<T>::selectMax(ListNodePosi(T) p,int n){
+    ListNodePosi(T) max=p;
+    while((p=p->next)!=trailer&&0<n--){
+        if(max->data<p->data)max=p;
+    }
+    return max;
+}
+//selection sort
+template <typename T> void List<T>::selectionSort(ListNodePosi(T) p,int n){
+    ListNodePosi(T)  tail=p,selectMax;
+    for(int i=0;i<n;i++)tail=tail->next; //找到排序的尾节点
+
+    while(1<n--){
+        selectMax=selectMax(p,n);
+        insertBefore(tail,remove(selectMax));
+        tail=tail->previous;
+    }
+
+
 }

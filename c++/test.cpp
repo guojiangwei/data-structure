@@ -2,6 +2,7 @@
 #include <iostream>
 #include "catch.hpp"
 #include "MyVector.h"
+#include "List.h"
 
 
 
@@ -36,6 +37,10 @@ TEST_CASE( "unit test for MyVector", "test" ) {
     REQUIRE(v[v.max()]==99);
     REQUIRE(v.maxSorted()==99); //test-12 max value
      REQUIRE(v[0]==0); /// test -13 min value
+}
 
 
+TEST_CASE( "unit test for List", "test list" ) {
+    List<int>  list= new List<int>;
+    REQUIRE(list.size==0);
 }
