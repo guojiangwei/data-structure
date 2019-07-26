@@ -49,7 +49,7 @@ protected:
     void selectionSort(ListNodePosi(T),int);///从指定位置开始进行选择排序
     void insertionSort(ListNodePosi(T),int);///从指定位置开始进行插入排序
 public:
-    List(){init()};//default
+    List(){init();};//default
     List(List<T> const& list);//整体复制列表
     List(List<T> const& list,int start,int n);//复制list ，从start 开始连续复制n个
     List(ListNodePosi(T) p,int n);//复制列表中自位置p起，连续n项
@@ -92,6 +92,8 @@ public:
     ListNodePosi(T) insertBefore(ListNodePosi(T) p, T const& e);
     //移除指定节点
     T remove(ListNodePosi(T) p);
+    //移除指定position节点
+    T remove(int i);
     //交换两个节点
        void swapNode(ListNodePosi(T) p,ListNodePosi(T) q){
            ///交换pq两个节点的位置，需要总共交换八次，分别交换各自后继节点的前驱节点；前驱节点的后继节点；各自的后继节点和前驱节点
@@ -112,16 +114,22 @@ public:
         p->previous=q->previous;
         q->previous=temp;
     }
-    ///将一个节点移动到另一个节点后面,需要改变六次指针
-    void moveNodeAfter(ListNodePosi(T) position,ListNodePosi(T) target){
-        ListNodePosi(T) temp=position->next;
-        target->previous->next=target->next;
-        target->next->previous=target->previous;
+    ///将一个节点移动到另一个节点后面,需要改变8次指针
+    void switchNode(ListNodePosi(T) position,ListNodePosi(T) target){
+        if(position->next=target|| position=target->next){
+            position->next=target->next;
+            target->previous=position->previous;
+        }
+        ListNodePosi(T) temp=position;
+        position->previous->next=target;
+        position->next->previous=target;
+        target->previous->next=position;
+        target->next->previous=position;
 
-        temp->previous=target;
-        target->next=temp;
-        position->next=target;
-        target->previous=position;
+        position->previous=target->previous;
+        position->next=target->next;
+        target->next=temp->next;
+        target->previous=temp->next;
         
     }
     //合并两个list
@@ -130,6 +138,10 @@ public:
     void sort(ListNodePosi(T) p,int n,int method=5);
     //整个list排序
     void sort(int method=5){sort(first(),_size,method);}
+    ///
+    void unsort(ListNodePosi(T) p,int n);
+    //
+    void unsort(){unsort(first(),_size);}
     //无序去除重复节点
     int deduplicate();
     //有序删除重复节点
@@ -152,7 +164,7 @@ template <typename T> void List<T>::init(){
 ///
 template <typename T> T& List<T>::operator[](int i)const{
     ListNodePosi(T) p=first();
-    while(0<r--){
+    while(0<i--){
         p=p->next;
     }
     return p->data;
@@ -160,8 +172,10 @@ template <typename T> T& List<T>::operator[](int i)const{
 ///
 template <typename T> ListNodePosi(T) List<T>::find(T const& e,int n,ListNodePosi(T) p)const{
     while(0<n--){
+     
+        if((p)&&e==p->data)return p;
         p=p->previous;
-        if((!p)&&e==p->data)return p;
+        
     }
     return NULL;
 }
@@ -210,6 +224,11 @@ template <typename T>  T List<T>::remove(ListNodePosi(T) p)
     _size--;
     return e;
 }
+template <typename T> T List<T>::remove(int i){
+    ListNodePosi(T) p =header->next;
+    while((p)!=trailer&&0<i--) p=p->next;
+    return remove(p);
+}
 template <typename T> List<T>::~List(){
     clear();
     delete header;
@@ -226,10 +245,19 @@ template <typename T> int List<T>::clear(){
 ///
 template <typename T> int List<T>::deduplicate(){
     ListNodePosi(T) p= header->next;
+    ListNodePosi(T) q;
     int oldSize=_size;
-    int r=_size;
-    while(!p){
-        find(p->data,r--,trailer->previous)?remove(p):p=p->next;
+    int r=_size-1;
+    while(p!=trailer){
+    //   printf("\n--start p=%d",p->data);
+      
+        if(q=find(p->data,r,trailer->previous)) {
+            // printf("\n p=%d    q=%d",p->data,q->data);
+            remove(q);
+            
+        }
+        else p=p->next;
+        r--;
     }
     return oldSize-_size;
 }
@@ -248,7 +276,8 @@ template <typename T> int List<T>::uniquify(){
     ListNodePosi(T) q;
     while ((q=p->next)!=trailer)
     {
-        p->data==q->data?remove(q):p=q;
+       if(p->data==q->data)remove(q);
+       else p=q;
     }
     return oldSize-_size;
 }
@@ -260,18 +289,47 @@ template <typename T> ListNodePosi(T) List<T>::search(T const& e,int n,ListNodeP
         if(q->data<=e)return q;
         else
         {
-            p=q
+            p=q;
         }
     }
     return q;
+}
+
+//
+template <typename T> void List<T>::unsort(ListNodePosi(T) p,int n){
+    int pos;
+    ListNodePosi(T) node;
+    p=p->previous;
+
+    while (0<n)
+    {
+        pos=rand()%n;
+        node=p->next;
+        // printf("\n--pre=%d----n=%d----pos=%d",p->data,n,pos);
+        for (int i = 0; i < pos; i++)
+        {
+            // printf("\n-i=%d--node=%d----",i,node->data);
+            node=node->next;
+        }
+        
+        // switchNode(p->previous,node);
+        // printf("\n--end--node=%d-",node->data);
+        insertAfter(p,remove(node));
+        // p=p->next;
+        n--;
+    }
+    
 }
 ///sort 
 template <typename T> void List<T>::sort(ListNodePosi(T) p,int n,int method){
     switch (method)
     {
-    case 5:
-       insertionSort(p,n);
+    case 1:
+       selectionSort(p,n);
         break;
+    case 5:
+    insertionSort(p,n);
+    break;
     
     default:
         break;
@@ -304,20 +362,24 @@ template <typename T> void List<T>::insertionSort(ListNodePosi(T) p,int n){
 
 template <typename T> ListNodePosi(T) List<T>::selectMax(ListNodePosi(T) p,int n){
     ListNodePosi(T) max=p;
-    while((p=p->next)!=trailer&&0<n--){
+    p=p->next;
+    while((p)!=trailer&&0<n--){
         if(max->data<p->data)max=p;
+        p=p->next;
     }
     return max;
 }
 //selection sort
 template <typename T> void List<T>::selectionSort(ListNodePosi(T) p,int n){
-    ListNodePosi(T)  tail=p,selectMax;
+    ListNodePosi(T)  tail=p;
+    ListNodePosi(T) curMax;
     for(int i=0;i<n;i++)tail=tail->next; //找到排序的尾节点
 
     while(1<n--){
-        selectMax=selectMax(p,n);
-        insertBefore(tail,remove(selectMax));
+        curMax=selectMax(p,n);
+        insertBefore(tail,remove(curMax));
         tail=tail->previous;
+        p=first();
     }
 
 
