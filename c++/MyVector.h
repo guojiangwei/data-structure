@@ -1,6 +1,6 @@
 template <typename T> class MyVector{
     protected:
-    int _size;int _capacity=10; T* _elem;
+    int _size;int _capacity; T* _elem;
     int SORTMETHOD;//0 bubble sort;1 selectionSort;2 merge sort;3 quicksort;4 heapsort
     int SEARCHMETHOD; //1 binsearch   2 binsearch2
     float _factor=0.8;
@@ -24,10 +24,12 @@ template <typename T> class MyVector{
     }
     public:
     //构造函数
-    MyVector(int c=10,int s=0,T v=0){
-        _capacity=c;
+    MyVector(){
+        // _capacity=c;
+        _capacity=10;
+        _size=0;
         _elem=new T[_capacity];
-        for(_size=0;_size<s;_elem[_size++]=v);
+        // for(_size=0;_size<s;_elem[_size++]=v);
     }
     MyVector(T const* A,int n){
         copyFrom(A,0,n);
@@ -200,10 +202,12 @@ template <typename T> int MyVector<T>::disordered()const{
 // }
 
 template <typename T> int MyVector<T>::search(T const& e,int low,int high)const{
-return mergeSort(low,high);
+return 1;
 }
 
 template <typename T> T& MyVector<T>::operator[] (int r) const{
+    // if(r>=_size) r=_size-1;
+    // if(r<0)return ;
 return _elem[r];
 }
 

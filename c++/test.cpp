@@ -1,8 +1,9 @@
 #define CATCH_CONFIG_MAIN
 #include <iostream>
 #include "catch.hpp"
-#include "MyVector.h"
+// #include "MyVector.h"
 #include "List.h"
+#include "Stack.h"
 
 
 
@@ -81,5 +82,53 @@ TEST_CASE( "unit test for List", "test list" ) {
     // list.traverse
 
     // list.find()
+
+}
+
+TEST_CASE( "unit test for Stack", "test stack" ) {
+    Stack<int> stack;
+    for(int i=0;i<10 ;i++){
+stack.push(i);
+    }
+    REQUIRE(stack.top()==9);
+    REQUIRE(stack.pop()==9);
+    REQUIRE(stack.size()==9);
+    REQUIRE(stack.pop()==8);
+    REQUIRE(stack.size()==8);
+    REQUIRE(stack.pop()==7);
+    REQUIRE(stack.size()==7);
+    REQUIRE(stack.pop()==6);
+    REQUIRE(stack.size()==6);
+    REQUIRE(stack.pop()==5);
+    REQUIRE(stack.size()==5);
+    REQUIRE(stack.pop()==4);
+    REQUIRE(stack.size()==4);
+    REQUIRE(stack.pop()==3);
+    REQUIRE(stack.size()==3);
+    REQUIRE(stack.pop()==2);
+    REQUIRE(stack.size()==2);
+    REQUIRE(stack.pop()==1);
+    REQUIRE(stack.size()==1);
+    REQUIRE(stack.top()==0);
+    REQUIRE(stack.pop()==0);
+    //  REQUIRE(stack.top()==0);  ///边界测试没做好
+    REQUIRE(stack.size()==0);
+    /////test digit to bin or oct or hex
+    Stack<char> result;
+    char  result2[4]={'1','0','1','0'};
+     printf("\nstart:%d",result.size());
+     convertTo(result,10,DIGITSYSTEM::BIN);
+      printf("\nend:%d",result.size());
+    for(int i=0;i<4;i++){
+        // printf("\nresult:%c   %d",result.top(),result.top());
+        // printf("\npop:%c",result.pop());
+        REQUIRE(result.pop()==result2[i]);
+    }
+    //将其他进制转换为10进制
+    char bin[]="1010";
+    int dig=convertFrom(bin,DIGITSYSTEM::BIN);
+    printf("\ndig=%d",dig);
+
+    
 
 }
