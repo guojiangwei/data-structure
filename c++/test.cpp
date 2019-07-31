@@ -2,8 +2,9 @@
 #include <iostream>
 #include "catch.hpp"
 // #include "MyVector.h"
-#include "List.h"
-#include "Stack.h"
+// #include "MyList.h"
+#include "MyStack.h"
+#include "MyQueue.h"
 
 
 
@@ -42,7 +43,7 @@ TEST_CASE( "unit test for MyVector", "test" ) {
 
 
 TEST_CASE( "unit test for List", "test list" ) {
-    List<int>  list;
+    MyList<int>  list;
     REQUIRE(list.size()==0);  //test  15 list size 
     for(int i=0;i<100;i++)list.insertAsFirst(i);
     REQUIRE(list.first()->data==99); //test 16
@@ -86,7 +87,7 @@ TEST_CASE( "unit test for List", "test list" ) {
 }
 
 TEST_CASE( "unit test for Stack", "test stack" ) {
-    Stack<int> stack;
+    MyStack<int> stack;
     for(int i=0;i<10 ;i++){
 stack.push(i);
     }
@@ -114,7 +115,7 @@ stack.push(i);
     //  REQUIRE(stack.top()==0);  ///边界测试没做好
     REQUIRE(stack.size()==0);
     /////test digit to bin or oct or hex
-    Stack<char> result;
+    MyStack<char> result;
     char  result2[4]={'1','0','1','0'};
     //  printf("\nstart:%d",result.size());
      convertTo(result,10,DIGITSYSTEM::BIN);
@@ -132,5 +133,29 @@ stack.push(i);
      REQUIRE(calculator("10*(2+3!*2^2)")==260);
      REQUIRE(calculator("10*(2+(3+1)!*20^2)")==96020);
     
+
+}
+
+
+///测试队列
+TEST_CASE( "unit test for MyQueue", "test MyQueue" ) {
+    MyQueue<int> queue;
+    for (int i = 0; i < 100; i++)
+    {
+        queue.enqueue(i); //测试入队
+    }
+    REQUIRE(queue.size()==100); 
+    REQUIRE(queue.dequeue()==0); //测试出队
+    REQUIRE(queue.dequeue()==1); //测试出队
+    REQUIRE(queue.size()==98); //测试规模
+    int s =queue.size();
+     for (int i = 0; i < s; i++)
+    {
+        queue.dequeue(); //测试入队
+    }
+    REQUIRE(queue.size()==0);//测试空队列
+
+    
+    simulateBank(10,100000);
 
 }
