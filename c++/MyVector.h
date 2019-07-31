@@ -139,7 +139,7 @@ int MyVector<T>::insert(int r,T const& e){
 }
 //
 template <typename T> void MyVector<T>::shrink(){
-  if(_size/(_capacity/2)<0.6){
+  if(_size!=0&&_size/(_capacity/2)<0.6){
       T * oldElem=_elem;
       _capacity=_capacity>>1;
       _elem=new T[_capacity];

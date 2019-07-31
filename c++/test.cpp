@@ -116,9 +116,9 @@ stack.push(i);
     /////test digit to bin or oct or hex
     Stack<char> result;
     char  result2[4]={'1','0','1','0'};
-     printf("\nstart:%d",result.size());
+    //  printf("\nstart:%d",result.size());
      convertTo(result,10,DIGITSYSTEM::BIN);
-      printf("\nend:%d",result.size());
+    //   printf("\nend:%d",result.size());
     for(int i=0;i<4;i++){
         // printf("\nresult:%c   %d",result.top(),result.top());
         // printf("\npop:%c",result.pop());
@@ -128,7 +128,9 @@ stack.push(i);
     char bin[]="1010";
     int dig=convertFrom(bin,DIGITSYSTEM::BIN);
     printf("\ndig=%d",dig);
-
+    // double calc=calculator("10*(2+3!*2^2");
+     REQUIRE(calculator("10*(2+3!*2^2)")==260);
+     REQUIRE(calculator("10*(2+(3+1)!*20^2)")==96020);
     
 
 }
