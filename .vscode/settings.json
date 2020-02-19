@@ -11,5 +11,6 @@
         "utility": "cpp",
         "chrono": "cpp",
         "limits": "cpp"
-    }
+    },
+    "python.pythonPath": "/home/gjw/anaconda3/bin/python"
 }
